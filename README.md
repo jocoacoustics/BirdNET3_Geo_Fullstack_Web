@@ -1,5 +1,7 @@
 # BirdNET3_Geo_Fullstack_Web · v0.2.2
 
+https://jocoacoustics.github.io/BirdNET3_Geo_Fullstack_Web/
+
 Aplicación web estática para GitHub Pages, sin Colab ni servidor de inferencia. WAV/MP3 y predicciones se procesan **en el navegador** con ONNX Runtime Web. La v0.2.2 corrige la fuente de descarga acústica y agrega trazabilidad desde el arranque, sin rediseñar la UX.
 
 ## Inicio y publicación
