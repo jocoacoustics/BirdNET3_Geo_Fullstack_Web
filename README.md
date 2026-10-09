@@ -1,52 +1,60 @@
-# BirdNET3_Geo_Fullstack_Web v0.2.0
+# BirdNET3_Geo_Fullstack_Web · v0.2.1
 
-**Aplicación estática para GitHub Pages, sin Colab ni servidor Python.** El audio permanece en el navegador; ONNX Runtime Web carga los modelos oficiales y ejecuta acústico / Geo localmente.
+Aplicación web estática (GitHub Pages), sin Colab ni servidor de inferencia. WAV/MP3 y predicciones se procesan **en el navegador** mediante ONNX Runtime Web. Conserva la UX de BirdNET v0.2.0 y corrige el error `HTTP 404 /models/acoustic_fp16.onnx`.
 
-## Instalación en GitHub Pages (recomendada)
+## Inicio y publicación
 
-1. Crea un repositorio nuevo llamado `BirdNET3_Geo_Fullstack_Web` (o el nombre que elijas).
-2. Descomprime y sube **el contenido** de este ZIP a la raíz de la rama `main`, incluyendo `.github/workflows/pages.yml`.
-3. En **Settings → Pages → Build and deployment**, elige **Source: GitHub Actions**.
-4. Ejecuta la acción `Publicar BirdNET Web en GitHub Pages` si no se inició con el push. Esta descarga los modelos dentro del artefacto publicado, **no los añade al historial Git**.
-5. Abre la URL que GitHub Pages muestre al terminar el despliegue. No abras `index.html` mediante `file://`, pues los workers y `fetch` exigen HTTP(S).
+1. Copia el contenido del proyecto al repositorio `BirdNET3_Geo_Fullstack_Web` (incluida `.github/workflows/pages.yml`).
+2. Haz commit + push con GitHub Desktop.
+3. En GitHub: **Settings → Pages → Source: GitHub Actions** (la acción ya no descarga modelos; solo publica archivos livianos).
+4. Abre `https://jocoacoustics.github.io/BirdNET3_Geo_Fullstack_Web/`. Haz recarga forzada `Ctrl+Shift+R` tras desplegar para evitar JS anterior.
+5. Sube un audio en la UX. El análisis empieza automáticamente y muestra el progreso en la tarjeta del audio.
 
-> El despliegue descarga un modelo acústico de ~68 MB y un Geo ~7.5 MB. Si los proveedores originales cambian de URL, edita `scripts/prepare_models.sh`. Un flujo roto aparecerá explícitamente como error en GitHub Actions, no como predicciones ficticias.
+### Origen de los modelos
 
-## Primera prueba local
+**Los modelos no vienen en el ZIP, no se suben al repositorio ni se sirven desde `models/`.** El navegador intenta obtenerlos directamente de:
 
-```bash
-./scripts/prepare_models.sh
-python -m http.server 8000
-```
+- Acústico BirdNET+ Preview 3.1 FP16 pruned y etiquetas 11K: [Zenodo oficial, registro 20703646](https://zenodo.org/records/20703646).
+- Geo y etiquetas 14K: [BirdNET Geomodel, demostración web oficial](https://birdnet-team.github.io/geomodel/demo/).
 
-Abre `http://localhost:8000`. Requiere internet para descargar el motor WebAssembly de ONNX Runtime Web. El navegador también podría leer modelos ONNX seleccionados manualmente en **Modelos ONNX → Archivos locales alternativos**.
+Las direcciones exactas están en **`config.yaml`**. Geo se descarga solamente si el audio tiene coordenadas y semana válidas y se habilita la opción Geo. La taxonomía extendida **no se necesita** para esta inferencia: las etiquetas específicas de cada modelo ya permiten mostrar nombres científicos y alinear scores.
 
-## Uso
+**Limitación importante:** no podemos garantizar desde este entorno que Zenodo habilite CORS para todas las visitas a GitHub Pages. Si el navegador bloquea `fetch` con CORS, abre Zenodo desde el enlace **BirdNET acústico oficial**, descarga el modelo `.onnx` FP16 pruned y su CSV, selecciona ambos en **Modelos ONNX → Archivos locales alternativos** y pulsa **Analizar**. Haz lo mismo con Geo solo si hace falta. Con **Conservar modelos** activado, la importación local también queda en IndexedDB y no hay que repetirla mientras el navegador mantenga esos datos.
 
-- Al subir WAV/MP3/OGG/M4A compatible, comienza automáticamente el análisis.
-- Mientras se analiza, la **tarjeta de audio sustituye el nombre del archivo por la barra de progreso**; al terminar, recupera el nombre.
-- Valores predeterminados: ventana 5 s; overlap 1 s; topK 100; umbral de inferencia 0.01; visualización 0.10.
-- El botón **Analizar** sirve para recalcular tras modificar parámetros.
-- Metadatos del nombre de archivo: `P-BLACKT_20260419_060002_30.wav` → 2026-04-19, 06:00:02, UTC−05:00, sin coordenadas; se ignora el sufijo `_30`. Los campos son editables.
-- Geo requiere coordenadas y semana 1–48. Si no están disponibles, la columna queda vacía; no hay puntuaciones inventadas.
-- Clic en espectrograma posiciona el cursor; arrastrar dibuja caja de zoom; **Ver todo** restaura la vista. Fila ▶ reproduce desde su inicio y termina al final; ▶ se vuelve ❚❚.
-- Exporta TXT Audacity con nombre científico y score a **2 decimales sin corchetes**, o CSV con dos scores originales.
+### Caché local y limpieza
 
-## Reutilización de modelos / GPU
+- `Conservar modelos en este navegador` viene marcado por defecto. Su preferencia se guarda entre visitas (`localStorage`).
+- Modelos y etiquetas se guardan en **IndexedDB** con clave por recurso y URL oficial, no por el nombre del WAV.
+- `Comprobar caché`: estado de acústico, etiquetas, Geo y etiquetas Geo.
+- `Proteger caché`: solicita a Chromium persistencia de almacenamiento (`navigator.storage.persist()`). El navegador puede denegarla; no promete conservación absoluta.
+- `Limpiar caché`: borra solamente los recursos IndexedDB de BirdNET. El audio no se guarda allí.
+- Si cambian las versiones oficiales, **Limpiar caché** permite obtener el modelo actualizado.
+- La primera carga necesita conexión para ONNX Runtime Web (CDN) y, si no hay caché, modelos oficiales.
 
-Marca **Conservar modelos en este navegador** para guardarlos en IndexedDB. Los modelos pueden ser eliminados automáticamente por falta de espacio, navegación privada o limpieza del navegador. **Limpiar caché** elimina la copia persistente de la aplicación. La selección GPU/WASM procede de `config.yaml`: `auto` prueba WebGPU y si falla cambia a WASM. La preview acústica tiene operadores que pueden no estar soportados en WebGPU; CPU puede ser la única ruta viable en determinados equipos.
+## Experiencia y parámetros
 
-## Archivos
+- Audio analizado al subir; botón **Analizar** para recalcular cuando modificas configuración.
+- Ventanas 5 s, solapamiento 1 s, Top K 100, umbral de inferencia 0.01, umbral de visualización 0.10 (YAML).
+- `P-BLACKT_20260419_060002_30.wav` → fecha 2026-04-19, 06:00:02, UTC−05:00. Ignora `_30`. Coordenadas opcionales y campos editables.
+- Acústico + Geo en columnas independientes; Geo no filtra especies raras.
+- Espectrograma recalculado al hacer zoom, selección mediante recuadro, clic para cursor, modo Mel/lineal, botón Ver todo y tabla independiente ordenable.
+- Reproducción por fila desde su inicio hasta el fin, con pausa por fila.
+- CSV + etiquetas de Audacity (`Nombre científico 0.86`), sin corchetes.
+- GPU mediante WebGPU si el modelo y navegador permiten sus operadores; fallback a WASM/CPU.
+- `Descargar log` guarda los errores y eventos visibles, útil en páginas sin backend.
 
-- `index.html`, `style.css`, `src/app.js`: frontend HTML/JS.
-- `src/onnx.worker.js`: modelo acústico y geomodel en un Web Worker, progreso, IndexedDB, fallback GPU/CPU.
-- `config.yaml`: rutas, parámetros y comportamiento por defecto; sin recompilación.
-- `.github/workflows/pages.yml`: descarga modelos y publica web.
-- `scripts/prepare_models.sh`: descarga opcional para pruebas locales.
-- `documentacion.html`: manual de usuario.
-- `CREDITOS_Y_LICENCIAS.md`: fuentes y atribución.
-- `tests/`: pruebas de funciones y estructura.
+## Archivos y desarrollo
 
-## Estado de validación
+- `index.html`, `style.css`, `src/app.js`: UX.
+- `src/onnx.worker.js`: descarga oficial, validación mínima de tamaño, IndexedDB y ONNX.
+- `config.yaml`: fuentes y parámetros, sin URLs locales inexistentes.
+- `.github/workflows/pages.yml`: publica **solo el sitio estático**.
+- `documentacion.html`: manual navegable.
+- `tests/test_browser_v021.py`: prueba UX con motor simulado, sin pesos ONNX.
+- `tests/test_worker.mjs`, `tests/test_cache_worker.mjs`: pruebas de worker e IndexedDB simulado.
 
-La estructura y JavaScript se pueden probar offline. No se ha ejecutado aquí inferencia real con los ONNX grandes debido a que este entorno no tiene acceso HTTP a Zenodo/CDN. La primera verificación científica debe hacerse con un WAV de referencia y comparar resultados con nuestra v0.1.2 Colab, pues los modelos acústicos ONNX optimizados pueden tener pequeñas diferencias respecto a FP32.
+**Verificación pendiente:** inferencia completa con los pesos oficiales descargados desde una página GitHub Pages real (CORS, compatibilidad WebGPU/WASM y correspondencia acústico/Geo). Los tests simulados comprueban lógica e interacciones, pero no validan científicamente las detecciones.
+
+## Licencias
+
+Lee `CREDITOS_Y_LICENCIAS.md`. El código propio se distribuye bajo MIT. Los modelos, aunque descargados de fuentes oficiales, siguen sujetos a sus licencias y condiciones específicas.

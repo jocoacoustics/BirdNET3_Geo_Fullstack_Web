@@ -1,20 +1,20 @@
-# BirdNET3_Geo_Fullstack_Web · v0.2.0
-# Configuración leída directamente por el frontend. Valores simples: sin listas YAML.
+# BirdNET3_Geo_Fullstack_Web v0.2.1 · SOLO navegador / GitHub Pages
 project:
   name: BirdNET3_Geo_Fullstack_Web
-  version: 0.2.0
+  version: 0.2.1
 models:
   keep_local: true
-  acoustic_url: models/acoustic_fp16.onnx
-  acoustic_labels_url: models/acoustic_labels.csv
-  geo_url: models/geo_fp16.onnx
-  geo_labels_url: models/geo_labels.txt
+  # Fuentes oficiales; no publicar modelos en el repositorio.
+  acoustic_url: "https://zenodo.org/records/20703646/files/BirdNET+_V3.0-preview3.1_Global_11K_FP16_pruned.onnx?download=1"
+  acoustic_labels_url: "https://zenodo.org/records/20703646/files/BirdNET+_V3.0-preview3.1_Global_11K_Labels.csv?download=1"
+  geo_url: "https://birdnet-team.github.io/geomodel/demo/geomodel_fp16.onnx"
+  geo_labels_url: "https://birdnet-team.github.io/geomodel/demo/labels.txt"
 metadata:
   default_timezone: "-05:00"
 audio:
   sample_rate: 32000
 inference:
-  device: auto            # auto | webgpu | wasm. WebGPU -> WASM si hay incompatibilidad.
+  device: auto
   window_seconds: 5.0
   overlap_seconds: 1.0
   top_k: 100
@@ -22,7 +22,6 @@ inference:
   visualization_threshold: 0.10
 geo:
   enabled: true
-  # BirdNET Geo recibe latitud, longitud, semana dentro del año de 48 semanas.
 spectrogram:
   max_frequency_hz: 12000
   zoom_fft_normal: 1024

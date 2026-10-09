@@ -27,3 +27,6 @@ input[type=file]{width:100%;font-size:11px;margin:5px 0 9px;max-width:100%}#cach
 @media(min-width: 900px){.main{height:calc(100vh - 118px);min-height:670px}.specpanel{min-height:0}.detections{min-height:0}}
 /* Garantiza ocultar la pantalla de bienvenida una vez existe un audio real. */
 .placeholder[hidden]{display:none!important}
+/* v0.2.1: gestor de modelos, información de caché compacta */
+#cacheDetail{line-height:1.45;overflow-wrap:anywhere;font-size:10.5px;color:#597392}
+.advanced a{color:#176cc8;text-decoration:underline;text-underline-offset:2px}
