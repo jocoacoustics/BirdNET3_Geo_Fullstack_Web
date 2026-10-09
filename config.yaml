@@ -1,12 +1,13 @@
-# BirdNET3_Geo_Fullstack_Web v0.2.1 · SOLO navegador / GitHub Pages
+# BirdNET3_Geo_Fullstack_Web v0.2.2 · SOLO navegador / GitHub Pages
 project:
   name: BirdNET3_Geo_Fullstack_Web
-  version: 0.2.1
+  version: 0.2.2
 models:
   keep_local: true
-  # Fuentes oficiales; no publicar modelos en el repositorio.
-  acoustic_url: "https://zenodo.org/records/20703646/files/BirdNET+_V3.0-preview3.1_Global_11K_FP16_pruned.onnx?download=1"
-  acoustic_labels_url: "https://zenodo.org/records/20703646/files/BirdNET+_V3.0-preview3.1_Global_11K_Labels.csv?download=1"
+  # Fuentes oficiales: API /content de Zenodo permite CORS; /records/.../files/ normalmente no.
+  # URLs versionadas; el navegador guarda en IndexedDB opcionalmente.
+  acoustic_url: "https://zenodo.org/api/records/20703646/files/BirdNET%2B_V3.0-preview3.1_Global_11K_FP16_pruned.onnx/content"
+  acoustic_labels_url: "https://zenodo.org/api/records/20703646/files/BirdNET%2B_V3.0-preview3.1_Global_11K_Labels.csv/content"
   geo_url: "https://birdnet-team.github.io/geomodel/demo/geomodel_fp16.onnx"
   geo_labels_url: "https://birdnet-team.github.io/geomodel/demo/labels.txt"
 metadata:

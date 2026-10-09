@@ -1,6 +1,16 @@
+# Changelog
+
+## v0.2.2 — 2026-10-08
+- Descarga acústica y etiquetas por endpoints `/api/records/.../files/.../content` de Zenodo (CORS documentado para endpoints API).
+- Logger arranca antes de cargar `config.yaml`, incluye versión JS, build, entorno, navegador, worker, WebGPU y origen.
+- Trazas por recurso en Worker: URL, inicio de fetch, estado HTTP, URL final, tamaño, caché, etapa y excepción.
+- Diagnóstico accesible incluso antes del primer audio; el log TXT incluye la sesión completa.
+- Cache busting de `style.css`, `src/app.js`, `src/onnx.worker.js` y `config.yaml` para evitar despliegues mezclados.
+- Configuración, README y manual sincronizados en v0.2.2; UX e inferencia sin otros cambios.
+
 # Cambios
 
-## v0.2.1 — Modelos oficiales y persistencia web
+## v0.2.2 — Modelos oficiales y persistencia web
 
 - Elimina URLs rotas `models/acoustic_fp16.onnx` y las sustituye por direcciones oficiales de BirdNET y Geo en YAML.
 - GitHub Actions publica solo código estático, sin alojar ONNX ni ejecutar scripts de descarga.
